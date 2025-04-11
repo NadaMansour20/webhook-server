@@ -2,13 +2,28 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
+const events = []; // ⬅️ Array تخزن كل الأحداث
+
 app.post("/webhook", (req, res) => {
-  console.log("📥 Webhook Event:", req.body);
+  const event = req.body.event || "unknown-event";
+  const time = new Date().toISOString();
+
+  const log = {
+    time,
+    event,
+    data: req.body
+  };
+
+  events.push(log); // ⬅️ حفظ الحدث
+
+  console.log("📥 Webhook Event:", log);
   res.sendStatus(200);
 });
 
-app.get("/", (req, res) => {
-  res.send("✅ Webhook server is running!");
+// ✅ API تقدر Android تطلبها
+app.get("/events", (req, res) => {
+  res.json(events);
 });
 
-app.listen(5000, () => console.log("🚀 Listening for JaaS events on port 5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Listening on port ${PORT}`));
